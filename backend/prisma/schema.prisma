@@ -1,11 +1,11 @@
 generator client {
- provider = "prisma-client"
-}
-datasource db {
- provider = "postgresql"
- schemas = ["books_api"]
+  provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "postgresql"
+  schemas  = ["books_api"]
+}
 
 model Author {
   id          Int      @id @default(autoincrement())
