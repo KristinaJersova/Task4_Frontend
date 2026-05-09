@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["books_api"]
+}
+
+model Author {
+  id          Int      @id @default(autoincrement())
+  firstName   String   @db.VarChar(100)
+  lastName    String   @db.VarChar(100)
+  birthYear   Int
+  nationality String
+  biography   String
+
+  books Book[]
+
+  createdAt   DateTime @default(now())
+
+  @@map("authors")
+  @@schema("books_api")
+}
+
+model Publisher {
+  id          Int      @id @default(autoincrement())
+  name        String
+  country     String
+  foundedYear Int
+  website     String?
+
+  books Book[]
+
+  createdAt   DateTime @default(now())
+
+  @@map("publishers")
+  @@schema("books_api")
+}
+
+model Book {
+  id            Int      @id @default(autoincrement())
+  title         String   @db.VarChar(255)
+  isbn          String   @unique
+  publishedYear Int
+  pageCount     Int
+  language      String
+  description   String
+  coverImage    String?
+
+  authorId      Int
+  author        Author  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  publisherId   Int
+  publisher     Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  genres        BookGenre[]  
+  reviews       Review[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("books")
+  @@schema("books_api")
+}
+
+model Genre {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  books BookGenre[]
+
+  @@map("genres")
+  @@schema("books_api")
+}
+
+model BookGenre {
+  id      Int @id @default(autoincrement())
+  bookId  Int
+  genreId Int
+
+  book  Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  genre Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, genreId])
+  @@map("book_genres")
+  @@schema("books_api")
+}
+
+model Review {
+  id       Int    @id @default(autoincrement())
+  bookId   Int
+  userName String
+  rating   Int
+  comment  String
+
+  book     Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("reviews")
+  @@schema("books_api")
+}
