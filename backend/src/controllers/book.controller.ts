@@ -182,3 +182,18 @@ export async function deleteReviewHandler(
     next(err);
   }
 }
+
+
+export async function getGenresHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const genres = await bookService.getAllGenres();
+
+    res.json(genres);
+  } catch (err) {
+    next(err);
+  }
+}
