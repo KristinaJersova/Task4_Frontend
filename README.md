@@ -99,11 +99,11 @@ npm run build
 
 # Projekti struktuur
 src/
- ├── api/
- ├── components/
- ├── pages/
- ├── App.tsx
- └── main.tsx
+- ├── api/
+- ├── components/
+- ├── pages/
+- ├── App.tsx
+- └── main.tsx
 
 # Märkused
 - Backend server peab töötama enne frontendi käivitamist
