@@ -1,73 +1,112 @@
-# React + TypeScript + Vite
+# React Frontend — Raamatukogu Infosüsteem
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend-rakendus raamatukogu REST API süsteemile, mis on loodud Reacti, TypeScripti ja Vite abil.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+# Autorid ja ülesannete jaotus
 
-## React Compiler
+## Kristina Jersova
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Teostatud funktsionaalsus:
 
-## Expanding the ESLint configuration
+- Raamatute nimekirja leht
+- Raamatu detailvaade
+- Raamatu lisamine / muutmine / kustutamine
+- Arvustuste süsteem
+- Lehekülgede navigeerimine (pagination)
+- Sorteerimine ja filtreerimine
+- Autorite leht
+- Žanri filter
+- Tailwind CSS kasutajaliides
+- Backend API ühendamine frontendiga
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Tehnoloogiad
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- React
+- TypeScript
+- Vite
+- Axios
+- React Router v6
+- Tailwind CSS
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+# Backend repositoorium
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Backend repositooriumi link:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+https://github.com/YOUR_BACKEND_REPOSITORY_LINK
+
+---
+
+# Paigaldamine
+
+## 1. Klooni repositoorium
+
+git clone YOUR_FRONTEND_REPOSITORY_LINK
+
+2. Ava projekt
+cd frontend
+
+3. Paigalda sõltuvused
+npm install
+
+# Keskkonnamuutujad
+
+Loo projekti juurkausta .env fail:
+
+VITE_API_URL=http://localhost:3000/api/v1
+
+# Rakenduse käivitamine
+## Arendusrežiim
+npm run dev
+
+### Rakendus töötab aadressil:
+
+http://localhost:5173
+
+## Production build
+npm run build
+
+# Kohustuslikud funktsioonid
+- Raamatute nimekiri
+- Raamatu detailvaade
+- Raamatu lisamine
+- Raamatu muutmine
+- Raamatu kustutamine
+- Arvustused
+- Keskmine hinnang
+- Pagination
+- Sorteerimine
+- Filtreerimine
+## Boonusfunktsioonid
+- Autorite leht
+- Žanri dropdown filter
+- Arvustuse kustutamine
+
+# Ekraanipildid
+- Raamatute leht
+
+
+- Raamatu detailvaade
+
+
+- Autorite leht
+
+
+# Projekti struktuur
+src/
+ ├── api/
+ ├── components/
+ ├── pages/
+ ├── App.tsx
+ └── main.tsx
+
+# Märkused
+- Backend server peab töötama enne frontendi käivitamist
+- API aadress määratakse .env failis
+- Kõik API päringud kasutavad Axios't
+- TypeScript tüüpe kasutatakse kogu projektis
