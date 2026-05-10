@@ -89,13 +89,13 @@ npm run build
 
 # Ekraanipildid
 - Raamatute leht
-
+![alt text](image-1.png)
 
 - Raamatu detailvaade
-
+![alt text](image.png)
 
 - Autorite leht
-
+![alt text](image-2.png)
 
 # Projekti struktuur
 src/
