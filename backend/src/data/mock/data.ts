@@ -5,10 +5,19 @@ import { Publisher } from "../../models/publisher.model";
 import { Review } from "../../models/review.model";
 import { Genre } from "../../models/genre.model";
 
+const genreNames = [
+  "Fantasy",
+  "Mystery",
+  "Psychology",
+  "Science Fiction",
+  "Children's Literature",
+  "Western",
+];
+
 function generateGenre(id: number): Genre {
   return {
     id,
-    name: faker.book.genre()
+    name: genreNames[id - 1],
   };
 }
 
