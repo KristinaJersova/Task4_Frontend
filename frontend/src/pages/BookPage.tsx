@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { deleteBook, getBooks } from "../api/api";
-import type { Book, BooksQueryParams } from "../api/api";
+import { deleteBook, getBooks, getGenres } from "../api/api";
+import type { Book, BooksQueryParams, Genre } from "../api/api";
 
 import BookCard from "../components/BooksCard";
 
@@ -12,13 +12,17 @@ export default function BooksPage() {
   const navigate = useNavigate();
 
   const [books, setBooks] = useState<Book[]>([]);
+  const [genres, setGenres] = useState<Genre[]>([]);
+
   const [loading, setLoading] = useState(false);
+  const [genresLoading, setGenresLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [filters, setFilters] = useState<BooksQueryParams>({
     title: "",
     language: "",
     year: undefined,
+    genreId: undefined,
     sortBy: "title",
     order: "asc",
     page: 1,
@@ -26,6 +30,31 @@ export default function BooksPage() {
   });
 
   const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchGenres = async () => {
+      try {
+        setGenresLoading(true);
+
+        const data = await getGenres(controller.signal);
+        setGenres(data);
+      } catch {
+        if (!controller.signal.aborted) {
+          setError("Failed to load genres");
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setGenresLoading(false);
+        }
+      }
+    };
+
+    fetchGenres();
+
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -79,6 +108,19 @@ export default function BooksPage() {
     }
   };
 
+  const resetFilters = () => {
+    setFilters({
+      title: "",
+      language: "",
+      year: undefined,
+      genreId: undefined,
+      sortBy: "title",
+      order: "asc",
+      page: 1,
+      limit: 5,
+    });
+  };
+
   const handleDelete = async (id: number) => {
     const confirmed = confirm("Delete this book?");
     if (!confirmed) return;
@@ -122,8 +164,8 @@ export default function BooksPage() {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl shadow-sm">
-          <div className="grid md:grid-cols-4 gap-3">
+        <div className="bg-white p-5 rounded-xl shadow-sm space-y-3">
+          <div className="grid md:grid-cols-5 gap-3">
             <input
               className="border border-gray-300 p-2 rounded-lg"
               placeholder="Title"
@@ -153,6 +195,28 @@ export default function BooksPage() {
 
             <select
               className="border border-gray-300 p-2 rounded-lg"
+              value={filters.genreId ?? ""}
+              onChange={(e) =>
+                updateFilter(
+                  "genreId",
+                  e.target.value ? Number(e.target.value) : undefined
+                )
+              }
+              disabled={genresLoading}
+            >
+              <option value="">
+                {genresLoading ? "Loading genres..." : "All genres"}
+              </option>
+
+              {genres.map((genre) => (
+                <option key={genre.id} value={genre.id}>
+                  {genre.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="border border-gray-300 p-2 rounded-lg"
               value={`${filters.sortBy}-${filters.order}`}
               onChange={(e) => handleSortChange(e.target.value)}
             >
@@ -162,6 +226,14 @@ export default function BooksPage() {
               <option value="publishedYear-desc">Year ↓</option>
             </select>
           </div>
+
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50"
+          >
+            Reset filters
+          </button>
         </div>
 
         {loading && (
@@ -205,7 +277,7 @@ export default function BooksPage() {
           </button>
 
           <span className="text-gray-700">
-            Page {currentPage} / {totalPages}
+            Page {currentPage} / {totalPages} · Limit {filters.limit}
           </span>
 
           <button
