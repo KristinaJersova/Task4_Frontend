@@ -86,7 +86,6 @@ export default function BooksPage() {
     try {
       setError(null);
       await deleteBook(id);
-
       setBooks((prev) => prev.filter((book) => book.id !== id));
     } catch {
       setError("Failed to delete book");
@@ -106,12 +105,21 @@ export default function BooksPage() {
             </p>
           </div>
 
-          <button
-            onClick={() => navigate("/books/new")}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm"
-          >
-            Lisa raamat
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate("/authors")}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm"
+            >
+              Authors
+            </button>
+
+            <button
+              onClick={() => navigate("/books/new")}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm"
+            >
+              Lisa raamat
+            </button>
+          </div>
         </div>
 
         <div className="bg-white p-5 rounded-xl shadow-sm">
