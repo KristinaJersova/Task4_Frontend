@@ -5,6 +5,7 @@ interface QueryParams {
   title?: string;
   language?: string;
   year?: number;
+  genreId?: number;
   sortBy?: "title" | "publishedYear";
   order?: "asc" | "desc";
   page?: number;
@@ -35,6 +36,7 @@ export async function getAllBooks(query: QueryParams) {
     title,
     language,
     year,
+    genreId,
     sortBy = "title",
     order = "asc",
     page = 1,
@@ -45,17 +47,25 @@ export async function getAllBooks(query: QueryParams) {
 
   if (title) {
     where.title = {
-      contains: title,
+      contains: String(title),
       mode: "insensitive",
     };
   }
 
   if (language) {
-    where.language = language;
+    where.language = String(language);
   }
 
   if (year) {
     where.publishedYear = Number(year);
+  }
+
+  if (genreId) {
+    where.genres = {
+      some: {
+        genreId: Number(genreId),
+      },
+    };
   }
 
   const totalItems = await prisma.book.count({ where });
@@ -263,6 +273,14 @@ export async function deleteReview(reviewId: number) {
   return prisma.review.delete({
     where: {
       id: reviewId,
+    },
+  });
+}
+
+export async function getAllGenres() {
+  return prisma.genre.findMany({
+    orderBy: {
+      name: "asc",
     },
   });
 }
