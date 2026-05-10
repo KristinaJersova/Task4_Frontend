@@ -17,4 +17,6 @@ router.get("/books/:bookId/average-rating", bookController.getAverageRatingHandl
 
 router.delete("/reviews/:reviewId", bookController.deleteReviewHandler);
 
+router.get("/genres",bookController.getGenresHandler);
+
 export default router;
