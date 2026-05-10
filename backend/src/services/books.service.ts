@@ -1,14 +1,39 @@
 import prisma from "../lib/prisma";
+import { Prisma } from "../generated/prisma/client";
 
 interface QueryParams {
   title?: string;
   language?: string;
   year?: number;
+
   sortBy?: "title" | "publishedYear";
+
   order?: "asc" | "desc";
+
   page?: number;
   limit?: number;
 }
+
+type CreateBookInput = {
+  title: string;
+  isbn: string;
+  publishedYear: number;
+  pageCount: number;
+  language: string;
+  description: string;
+
+  publisherId: number;
+  authorId: number;
+
+  genreIds?: number[];
+  coverImage?: string | null;
+};
+
+type CreateReviewInput = {
+  userName: string;
+  rating: number;
+  comment: string;
+};
 
 export async function getAllBooks(query: QueryParams) {
   const {
@@ -21,10 +46,13 @@ export async function getAllBooks(query: QueryParams) {
     limit = 10,
   } = query;
 
-  const where: any = {};
+  const where: Prisma.BookWhereInput = {};
 
   if (title) {
-    where.title = { contains: title, mode: "insensitive" };
+    where.title = {
+      contains: title,
+      mode: "insensitive",
+    };
   }
 
   if (language) {
@@ -35,131 +63,203 @@ export async function getAllBooks(query: QueryParams) {
     where.publishedYear = Number(year);
   }
 
-  const totalItems = await prisma.book.count({ where });
+  const totalItems = await prisma.book.count({
+    where,
+  });
 
   const books = await prisma.book.findMany({
     where,
+
     include: {
       author: true,
       publisher: true,
+
       genres: {
-        include: { genre: true },
+        include: {
+          genre: true,
+        },
       },
     },
+
     orderBy: {
       [sortBy]: order,
     },
+
     skip: (Number(page) - 1) * Number(limit),
+
     take: Number(limit),
   });
 
   return {
     data: books,
+
     pagination: {
       currentPage: Number(page),
-      totalPages: Math.ceil(totalItems / Number(limit)),
+
+      totalPages: Math.ceil(
+        totalItems / Number(limit)
+      ),
+
       totalItems,
+
       itemsPerPage: Number(limit),
-      hasNextPage: Number(page) * Number(limit) < totalItems,
-      hasPreviousPage: Number(page) > 1,
+
+      hasNextPage:
+        Number(page) * Number(limit) < totalItems,
+
+      hasPreviousPage:
+        Number(page) > 1,
     },
   };
 }
 
 export async function getBookById(bookId: number) {
-  return prisma.book.findUnique({
-    where: { id: bookId },
+  const book = await prisma.book.findUnique({
+    where: {
+      id: bookId,
+    },
+
     include: {
       author: true,
       publisher: true,
-      genres: { include: { genre: true } },
+
+      genres: {
+        include: {
+          genre: true,
+        },
+      },
+
       reviews: true,
     },
   });
+
+  if (!book) {
+    throw new Error("BOOK_NOT_FOUND");
+  }
+
+  return book;
 }
 
-export async function createBook(data: {
-  title: string;
-  isbn: string;
-  publishedYear: number;
-  pageCount: number;
-  language: string;
-  description: string;
-  publisherId: number;
-  authorId?: number;
-  genreIds?: number[];
-  coverImage?: string;
-}) {
-  const createData: any = {
+export async function createBook(
+  data: CreateBookInput
+) {
+  const createData: Prisma.BookCreateInput = {
     title: data.title,
     isbn: data.isbn,
+
     publishedYear: data.publishedYear,
+
     pageCount: data.pageCount,
+
     language: data.language,
+
     description: data.description,
-    coverImage: data.coverImage,
+
+    coverImage: data.coverImage ?? null,
+
+    author: {
+      connect: {
+        id: data.authorId,
+      },
+    },
 
     publisher: {
-      connect: { id: data.publisherId },
+      connect: {
+        id: data.publisherId,
+      },
     },
   };
-
-  if (data.authorId) {
-    createData.author = {
-      connect: { id: data.authorId },
-    };
-  }
 
   if (data.genreIds) {
     createData.genres = {
       create: data.genreIds.map((id) => ({
-        genre: { connect: { id } },
+        genre: {
+          connect: {
+            id,
+          },
+        },
       })),
     };
   }
 
   return prisma.book.create({
     data: createData,
+
     include: {
       author: true,
       publisher: true,
-      genres: { include: { genre: true } },
+
+      genres: {
+        include: {
+          genre: true,
+        },
+      },
     },
   });
 }
 
-export async function updateBook(bookId: number, data: any) {
+export async function updateBook(
+  bookId: number,
+  data: Prisma.BookUpdateInput & {
+    genreIds?: number[];
+  }
+) {
   return prisma.book.update({
-    where: { id: bookId },
+    where: {
+      id: bookId,
+    },
+
     data: {
       ...data,
+
       genres: data.genreIds
         ? {
             deleteMany: {},
-            create: data.genreIds.map((id: number) => ({
-              genre: { connect: { id } },
+
+            create: data.genreIds.map((id) => ({
+              genre: {
+                connect: {
+                  id,
+                },
+              },
             })),
           }
         : undefined,
     },
+
     include: {
       author: true,
       publisher: true,
-      genres: { include: { genre: true } },
+
+      genres: {
+        include: {
+          genre: true,
+        },
+      },
     },
   });
 }
 
 export async function deleteBook(bookId: number) {
   return prisma.book.delete({
-    where: { id: bookId },
+    where: {
+      id: bookId,
+    },
   });
 }
 
-export async function createReview(bookId: number, data: any) {
+export async function createReview(
+  bookId: number,
+  data: CreateReviewInput
+) {
   return prisma.review.create({
     data: {
-      ...data,
+      userName: data.userName,
+
+      rating: data.rating,
+
+      comment: data.comment,
+
       bookId,
     },
   });
@@ -167,15 +267,25 @@ export async function createReview(bookId: number, data: any) {
 
 export async function getReviewsByBook(bookId: number) {
   return prisma.review.findMany({
-    where: { bookId },
-    orderBy: { createdAt: "desc" },
+    where: {
+      bookId,
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 }
 
 export async function getAverageRating(bookId: number) {
   const result = await prisma.review.aggregate({
-    where: { bookId },
-    _avg: { rating: true },
+    where: {
+      bookId,
+    },
+
+    _avg: {
+      rating: true,
+    },
   });
 
   return result._avg.rating ?? 0;

@@ -14,11 +14,6 @@ export async function getBooksHandler(req: Request, res: Response, next: NextFun
 export async function getBookByIdHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const book = await bookService.getBookById(Number(req.params.bookId));
-
-    if (!book) {
-      return res.status(404).json({ error: "Book not found" });
-    }
-
     res.json(book);
   } catch (err) {
     next(err);

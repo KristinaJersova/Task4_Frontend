@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
-import { Prisma } from "../../src/generated/prisma";
+import { Prisma } from "../generated/prisma/client";
 
 export function errorHandler(
   err: unknown,
@@ -31,6 +31,16 @@ export function errorHandler(
           meta: err.meta,
         });
     }
+  }
+
+  if (err instanceof Prisma.PrismaClientValidationError) {
+    return res.status(400).json({
+      error: "Invalid Prisma query",
+    });
+  }
+
+  if ((err as Error).message === "BOOK_NOT_FOUND") {
+    return res.status(404).json({ error: "Book not found" });
   }
 
   return res.status(500).json({
