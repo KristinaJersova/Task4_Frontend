@@ -17,6 +17,11 @@ export interface Publisher {
   name: string;
 }
 
+export interface Genre {
+  id: number;
+  name: string;
+}
+
 export interface BookGenre {
   id: number;
   genre: {
@@ -48,7 +53,6 @@ export interface Review {
   createdAt: string;
 }
 
-
 export interface AuthorWithBooks {
   id: number;
   firstName: string;
@@ -57,11 +61,11 @@ export interface AuthorWithBooks {
   books: Book[];
 }
 
-
 export interface BooksQueryParams {
   title?: string;
   language?: string;
   year?: number;
+  genreId?: number;
   sortBy?: "title" | "publishedYear";
   order?: "asc" | "desc";
   page?: number;
@@ -70,7 +74,6 @@ export interface BooksQueryParams {
 
 export interface BooksResponse {
   data: Book[];
-
   pagination: {
     currentPage: number;
     totalPages: number;
@@ -121,10 +124,19 @@ export const getBooks = async (
     ...params,
     title: params.title || undefined,
     language: params.language || undefined,
+    genreId: params.genreId || undefined,
   };
 
   const res = await api.get<BooksResponse>("/books", {
     params: cleanParams,
+    signal,
+  });
+
+  return res.data;
+};
+
+export const getGenres = async (signal?: AbortSignal): Promise<Genre[]> => {
+  const res = await api.get<Genre[]>("/genres", {
     signal,
   });
 
@@ -142,11 +154,8 @@ export const getBookById = async (
   return res.data;
 };
 
-export const createBook = async (
-  data: CreateBookDTO
-): Promise<Book> => {
+export const createBook = async (data: CreateBookDTO): Promise<Book> => {
   const res = await api.post<Book>("/books", data);
-
   return res.data;
 };
 
@@ -154,31 +163,21 @@ export const updateBook = async (
   id: number,
   data: UpdateBookDTO
 ): Promise<Book> => {
-  const res = await api.put<Book>(
-    `/books/${id}`,
-    data
-  );
-
+  const res = await api.put<Book>(`/books/${id}`, data);
   return res.data;
 };
 
-export const deleteBook = async (
-  id: number
-): Promise<void> => {
+export const deleteBook = async (id: number): Promise<void> => {
   await api.delete(`/books/${id}`);
 };
-
 
 export const getReviews = async (
   id: number,
   signal?: AbortSignal
 ): Promise<Review[]> => {
-  const res = await api.get<Review[]>(
-    `/books/${id}/reviews`,
-    {
-      signal,
-    }
-  );
+  const res = await api.get<Review[]>(`/books/${id}/reviews`, {
+    signal,
+  });
 
   return res.data;
 };
@@ -187,11 +186,7 @@ export const createReview = async (
   id: number,
   data: CreateReviewDTO
 ): Promise<Review> => {
-  const res = await api.post<Review>(
-    `/books/${id}/reviews`,
-    data
-  );
-
+  const res = await api.post<Review>(`/books/${id}/reviews`, data);
   return res.data;
 };
 
@@ -199,9 +194,7 @@ export const getAverageRating = async (
   id: number,
   signal?: AbortSignal
 ): Promise<{ averageRating: number }> => {
-  const res = await api.get<{
-    averageRating: number;
-  }>(
+  const res = await api.get<{ averageRating: number }>(
     `/books/${id}/average-rating`,
     {
       signal,
@@ -214,18 +207,13 @@ export const getAverageRating = async (
 export const getAuthors = async (
   signal?: AbortSignal
 ): Promise<AuthorWithBooks[]> => {
-  const res = await api.get<
-    AuthorWithBooks[]
-  >("/authors", {
+  const res = await api.get<AuthorWithBooks[]>("/authors", {
     signal,
   });
 
   return res.data;
 };
 
-
-export const deleteReview = async (
-  reviewId: number
-): Promise<void> => {
+export const deleteReview = async (reviewId: number): Promise<void> => {
   await api.delete(`/reviews/${reviewId}`);
 };
